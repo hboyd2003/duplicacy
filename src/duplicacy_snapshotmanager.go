@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path"
@@ -191,7 +190,7 @@ type SnapshotManager struct {
 	fileChunk     *Chunk
 	snapshotCache *FileStorage
 
-	chunkOperator   *ChunkOperator
+	chunkOperator *ChunkOperator
 }
 
 // CreateSnapshotManager creates a snapshot manager
@@ -407,7 +406,7 @@ func (manager *SnapshotManager) CleanSnapshotCache(latestSnapshot *Snapshot, all
 			continue
 		}
 
-		description, err := ioutil.ReadFile(path.Join(manager.snapshotCache.storageDir,
+		description, err := os.ReadFile(path.Join(manager.snapshotCache.storageDir,
 			"snapshots", snapshotFile))
 		if err != nil {
 			LOG_WARN("SNAPSHOT_CACHE", "Failed to read the cached snapshot file: %v", err)
@@ -738,7 +737,7 @@ func (manager *SnapshotManager) ListSnapshots(snapshotID string, revisionsToList
 				totalFileSize := int64(0)
 				lastChunk := 0
 
-				snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry)bool {
+				snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry) bool {
 					if file.IsFile() {
 						totalFiles++
 						totalFileSize += file.Size
@@ -753,7 +752,7 @@ func (manager *SnapshotManager) ListSnapshots(snapshotID string, revisionsToList
 					return true
 				})
 
-				snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry)bool {
+				snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry) bool {
 					if file.IsFile() {
 						LOG_INFO("SNAPSHOT_FILE", "%s", file.String(maxSizeDigits))
 					}
@@ -1112,7 +1111,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 
 				manager.config.PutChunk(chunk)
 			}
-		} ()
+		}()
 	}
 
 	for chunkIndex := range chunkHashes {
@@ -1304,7 +1303,7 @@ func (manager *SnapshotManager) PrintSnapshot(snapshot *Snapshot) bool {
 	fmt.Printf("%s", string(description[:len(description) - 2]))
 	fmt.Printf(",\n  \"files\": [\n")
 	isFirstFile := true
-	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func (file *Entry) bool {
+	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry) bool {
 
 		fileDescription, _ := json.MarshalIndent(file.convertToObject(false), "", "    ")
 
@@ -1334,7 +1333,7 @@ func (manager *SnapshotManager) VerifySnapshot(snapshot *Snapshot) bool {
 	}
 
 	files := make([]*Entry, 0)
-	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func (file *Entry) bool {
+	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry) bool {
 		if file.IsFile() && file.Size != 0 {
 			file.Attributes = nil
 			files = append(files, file)
@@ -1438,7 +1437,7 @@ func (manager *SnapshotManager) RetrieveFile(snapshot *Snapshot, file *Entry, la
 func (manager *SnapshotManager) FindFile(snapshot *Snapshot, filePath string, suppressError bool) *Entry {
 
 	var found *Entry
-	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func (entry *Entry) bool {
+	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(entry *Entry) bool {
 		if entry.Path == filePath {
 			found = entry
 			return false
@@ -1491,8 +1490,8 @@ func (manager *SnapshotManager) PrintFile(snapshotID string, revision int, path 
 
 	file := manager.FindFile(snapshot, path, false)
 	if !manager.RetrieveFile(snapshot, file, nil, func(chunk []byte) {
-			fmt.Printf("%s", chunk)
-		}) {
+		fmt.Printf("%s", chunk)
+	}) {
 		LOG_ERROR("SNAPSHOT_RETRIEVE", "File %s is corrupted in snapshot %s at revision %d",
 			path, snapshot.ID, snapshot.Revision)
 		return false
@@ -1512,7 +1511,7 @@ func (manager *SnapshotManager) Diff(top string, snapshotID string, revisions []
 	defer func() {
 		manager.chunkOperator.Stop()
 		manager.chunkOperator = nil
-	} ()
+	}()
 
 	var leftSnapshot *Snapshot
 	var rightSnapshot *Snapshot
@@ -1529,7 +1528,7 @@ func (manager *SnapshotManager) Diff(top string, snapshotID string, revisions []
 			go func() {
 				defer CatchLogException()
 				rightSnapshot.ListLocalFiles(top, nobackupFile, filtersFile, excludeByAttribute, localListingChannel, nil, nil)
-			} ()
+			}()
 
 			for entry := range localListingChannel {
 				entry.Attributes = nil  // attributes are not compared
@@ -1576,7 +1575,7 @@ func (manager *SnapshotManager) Diff(top string, snapshotID string, revisions []
 			}
 		} else {
 			var err error
-			rightFile, err = ioutil.ReadFile(joinPath(top, filePath))
+			rightFile, err = os.ReadFile(joinPath(top, filePath))
 			if err != nil {
 				LOG_ERROR("SNAPSHOT_DIFF", "Failed to read %s from the repository: %v", filePath, err)
 				return false
@@ -1737,7 +1736,7 @@ func (manager *SnapshotManager) ShowHistory(top string, snapshotID string, revis
 	defer func() {
 		manager.chunkOperator.Stop()
 		manager.chunkOperator = nil
-	} ()
+	}()
 
 	var err error
 
@@ -1865,7 +1864,7 @@ func (manager *SnapshotManager) PruneSnapshots(selfID string, snapshotID string,
 	defer func() {
 		manager.chunkOperator.Stop()
 		manager.chunkOperator = nil
-	} ()
+	}()
 
 	prefPath := GetDuplicacyPreferencePath()
 	logDir := path.Join(prefPath, "logs")
@@ -2556,7 +2555,7 @@ func (manager *SnapshotManager) CheckSnapshot(snapshot *Snapshot) (err error) {
 			numberOfChunks, len(snapshot.ChunkLengths))
 	}
 
-	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func (entry *Entry) bool {
+	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(entry *Entry) bool {
 
 		if lastEntry != nil && lastEntry.Compare(entry) >= 0 && !strings.Contains(lastEntry.Path, "\ufffd") {
 			err = fmt.Errorf("The entry %s appears before the entry %s", lastEntry.Path, entry.Path)
@@ -2610,7 +2609,7 @@ func (manager *SnapshotManager) CheckSnapshot(snapshot *Snapshot) (err error) {
 		if entry.Size != fileSize {
 			err = fmt.Errorf("The file %s has a size of %d but the total size of chunks is %d",
 				entry.Path, entry.Size, fileSize)
-		    return false
+			return false
 		}
 
 		return true
@@ -2659,7 +2658,7 @@ func (manager *SnapshotManager) DownloadFile(path string, derivationKey string) 
 			err = manager.storage.UploadFile(0, path, newChunk.GetBytes())
 			if err != nil {
 				LOG_WARN("DOWNLOAD_REWRITE", "Failed to re-uploaded the file %s: %v", path, err)
-			} else{
+			} else {
 				LOG_INFO("DOWNLOAD_REWRITE", "The file %s has been re-uploaded", path)
 			}
 		}

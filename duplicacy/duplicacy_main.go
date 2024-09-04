@@ -22,9 +22,7 @@ import (
 
 	"github.com/gilbertchen/cli"
 
-	"io/ioutil"
-
-	"github.com/gilbertchen/duplicacy/src"
+	duplicacy "github.com/gilbertchen/duplicacy/src"
 )
 
 const (
@@ -316,7 +314,7 @@ func configRepository(context *cli.Context, init bool) {
 			// write real path into .duplicacy file inside repository
 			duplicacyFileName := path.Join(repository, duplicacy.DUPLICACY_FILE)
 			d1 := []byte(preferencePath)
-			err = ioutil.WriteFile(duplicacyFileName, d1, 0644)
+			err = os.WriteFile(duplicacyFileName, d1, 0644)
 			if err != nil {
 				duplicacy.LOG_ERROR("REPOSITORY_PATH", "Failed to write %s file inside repository  %v", duplicacyFileName, err)
 				return
@@ -705,7 +703,7 @@ func changePassword(context *cli.Context) {
 	}
 
 	configPath := path.Join(duplicacy.GetDuplicacyPreferencePath(), "config")
-	err = ioutil.WriteFile(configPath, description, 0600)
+	err = os.WriteFile(configPath, description, 0600)
 	if err != nil {
 		duplicacy.LOG_ERROR("CONFIG_SAVE", "Failed to save the old config to %s: %v", configPath, err)
 		return
@@ -1044,7 +1042,6 @@ func printFile(context *cli.Context) {
 		snapshotID = context.String("id")
 	}
 
-
 	backupManager := duplicacy.CreateBackupManager(preference.SnapshotID, storage, repository, password, "", "", false)
 	duplicacy.SavePassword(*preference, "password", password)
 
@@ -1291,7 +1288,7 @@ func copySnapshots(context *cli.Context) {
 	destinationStorage.SetRateLimits(0, context.Int("upload-limit-rate"))
 
 	destinationManager := duplicacy.CreateBackupManager(destination.SnapshotID, destinationStorage, repository,
-		                                                  destinationPassword, "", "", false)
+		destinationPassword, "", "", false)
 	duplicacy.SavePassword(*destination, "password", destinationPassword)
 	destinationManager.SetupSnapshotCache(destination.Name)
 
@@ -1416,7 +1413,7 @@ func benchmark(context *cli.Context) {
 	if storage == nil {
 		return
 	}
-	duplicacy.Benchmark(repository, storage, int64(fileSize) * 1024 * 1024, chunkSize * 1024 * 1024, chunkCount, uploadThreads, downloadThreads)
+	duplicacy.Benchmark(repository, storage, int64(fileSize)*1024*1024, chunkSize*1024*1024, chunkCount, uploadThreads, downloadThreads)
 }
 
 func main() {
@@ -1455,8 +1452,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:     "zstd",
-					Usage:    "short for -zstd default",
+					Name:  "zstd",
+					Usage: "short for -zstd default",
 				},
 				cli.IntFlag{
 					Name:     "iterations",
@@ -1531,8 +1528,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:     "zstd",
-					Usage:    "short for -zstd default",
+					Name:  "zstd",
+					Usage: "short for -zstd default",
 				},
 				cli.BoolFlag{
 					Name:  "vss",
@@ -1565,7 +1562,6 @@ func main() {
 					Usage:    "the maximum number of entries kept in memory (defaults to 1M)",
 					Argument: "<number>",
 				},
-
 			},
 			Usage:     "Save a snapshot of the repository to the storage",
 			ArgsUsage: " ",
@@ -1625,7 +1621,7 @@ func main() {
 				cli.BoolFlag{
 					Name:  "persist",
 					Usage: "continue processing despite chunk errors or existing files (without -overwrite), reporting any affected files",
-        },
+				},
 				cli.StringFlag{
 					Name:     "key-passphrase",
 					Usage:    "the passphrase to decrypt the RSA private key",
@@ -1983,8 +1979,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:     "zstd",
-					Usage:    "short for -zstd default",
+					Name:  "zstd",
+					Usage: "short for -zstd default",
 				},
 				cli.IntFlag{
 					Name:     "iterations",
@@ -2249,8 +2245,8 @@ func main() {
 			Usage: "add a comment to identify the process",
 		},
 		cli.StringSliceFlag{
-			Name:  "suppress, s",
-			Usage: "suppress logs with the specified id",
+			Name:     "suppress, s",
+			Usage:    "suppress logs with the specified id",
 			Argument: "<id>",
 		},
 		cli.BoolFlag{
