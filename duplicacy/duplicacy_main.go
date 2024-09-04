@@ -1452,8 +1452,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:  "zstd",
-					Usage: "short for -zstd default",
+					Name:     "zstd",
+					Usage:    "short for -zstd-level default",
 				},
 				cli.IntFlag{
 					Name:     "iterations",
@@ -1528,8 +1528,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:  "zstd",
-					Usage: "short for -zstd default",
+					Name:     "zstd",
+					Usage:    "short for -zstd-level default",
 				},
 				cli.BoolFlag{
 					Name:  "vss",
@@ -1979,8 +1979,8 @@ func main() {
 					Argument: "<level>",
 				},
 				cli.BoolFlag{
-					Name:  "zstd",
-					Usage: "short for -zstd default",
+					Name:     "zstd",
+					Usage:    "short for -zstd-level default",
 				},
 				cli.IntFlag{
 					Name:     "iterations",
