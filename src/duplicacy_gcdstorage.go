@@ -6,6 +6,7 @@ package duplicacy
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -101,7 +102,7 @@ func (storage *GCDStorage) shouldRetry(threadIndex int, err error) (bool, error)
 	} else if e, ok := err.(*url.Error); ok {
 		message = e.Error()
 		retry = true
-	} else if err == io.ErrUnexpectedEOF {
+	} else if errors.Is(err, io.ErrUnexpectedEOF) {
 		// Retry on unexpected EOFs and temporary network errors.
 		message = "Unexpected EOF"
 		retry = true
@@ -450,7 +451,7 @@ func CreateGCDStorage(tokenFile string, driveID string, storagePath string, thre
 
 	storagePathID := ""
 
-	// When using service acount, check if storagePath is a shared folder which takes priority over regular folders.
+	// When using service account, check if storagePath is a shared folder which takes priority over regular folders.
 	if isServiceAccount && !strings.Contains(storagePath, "/") {
 		storagePathID, err = storage.findSharedFolder(0, storagePath)
 		if err != nil {

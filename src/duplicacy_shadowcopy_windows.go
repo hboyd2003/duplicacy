@@ -11,11 +11,11 @@ import (
 	"time"
 	"unsafe"
 
-	ole "github.com/gilbertchen/go-ole"
+	"github.com/gilbertchen/go-ole"
 )
 
-//507C37B4-CF5B-4e95-B0AF-14EB9767467E
-var IID_IVSS_ASYNC = &ole.GUID{0x507C37B4, 0xCF5B, 0x4e95, [8]byte{0xb0, 0xaf, 0x14, 0xeb, 0x97, 0x67, 0x46, 0x7e}}
+// 507C37B4-CF5B-4e95-B0AF-14EB9767467E
+var IID_IVSS_ASYNC = &ole.GUID{Data1: 0x507C37B4, Data2: 0xCF5B, Data3: 0x4e95, Data4: [8]byte{0xb0, 0xaf, 0x14, 0xeb, 0x97, 0x67, 0x46, 0x7e}}
 
 type IVSSAsync struct {
 	ole.IUnknown
@@ -77,8 +77,8 @@ func getIVSSAsync(unknown *ole.IUnknown, iid *ole.GUID) (async *IVSSAsync) {
 	return
 }
 
-//665c1d5f-c218-414d-a05d-7fef5f9d5c86
-var IID_IVSS = &ole.GUID{0x665c1d5f, 0xc218, 0x414d, [8]byte{0xa0, 0x5d, 0x7f, 0xef, 0x5f, 0x9d, 0x5c, 0x86}}
+// 665c1d5f-c218-414d-a05d-7fef5f9d5c86
+var IID_IVSS = &ole.GUID{Data1: 0x665c1d5f, Data2: 0xc218, Data3: 0x414d, Data4: [8]byte{0xa0, 0x5d, 0x7f, 0xef, 0x5f, 0x9d, 0x5c, 0x86}}
 
 type IVSS struct {
 	ole.IUnknown

@@ -275,7 +275,7 @@ func (storage *WebDAVStorage) getProperties(uri string, depth int, properties ..
 
 // ListFiles return the list of files and subdirectories under 'dir'.  A subdirectories returned must have a trailing '/', with
 // a size of 0.  If 'dir' is 'snapshots', only subdirectories will be returned.  If 'dir' is 'snapshots/repository_id', then only
-// files will be returned.  If 'dir' is 'chunks', the implementation can return the list either recusively or non-recusively.
+// files will be returned.  If 'dir' is 'chunks', the implementation can return the list either recursively or non-recursively.
 func (storage *WebDAVStorage) ListFiles(threadIndex int, dir string) (files []string, sizes []int64, err error) {
 	if dir[len(dir)-1] != '/' {
 		dir += "/"
@@ -336,10 +336,10 @@ func (storage *WebDAVStorage) GetFileInfo(threadIndex int, filePath string) (exi
 
 	properties, err := storage.getProperties(filePath, 0, "getcontentlength", "resourcetype")
 	if err != nil {
-		if err == errWebDAVNotExist {
+		if errors.Is(err, errWebDAVNotExist) {
 			return false, false, 0, nil
 		}
-		if err == errWebDAVMovedPermanently {
+		if errors.Is(err, errWebDAVMovedPermanently) {
 			// This must be a directory
 			return true, true, 0, nil
 		}
@@ -422,7 +422,7 @@ func (storage *WebDAVStorage) CreateDirectory(threadIndex int, dir string) (err 
 
 	readCloser, _, err := storage.sendRequest("MKCOL", dir, 0, []byte(""))
 	if err != nil {
-		if err == errWebDAVMethodNotAllowed || err == errWebDAVMovedPermanently || err == io.EOF {
+		if errors.Is(err, errWebDAVMethodNotAllowed) || errors.Is(err, errWebDAVMovedPermanently) || err == io.EOF {
 			// We simply ignore these errors and assume that the directory already exists
 			LOG_TRACE("WEBDAV_MKDIR", "Can't create directory %s: %v; error ignored", dir, err)
 			storage.directoryCacheLock.Lock()

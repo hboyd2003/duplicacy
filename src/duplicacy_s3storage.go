@@ -29,7 +29,7 @@ type S3Storage struct {
 	numberOfThreads int
 }
 
-// CreateS3Storage creates a amazon s3 storage object.
+// CreateS3Storage creates an Amazon S3 storage object.
 func CreateS3Storage(regionName string, endpoint string, bucketName string, storageDir string,
 	accessKey string, secretKey string, threads int,
 	isSSLSupported bool, isMinioCompatible bool) (storage *S3Storage, err error) {

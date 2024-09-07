@@ -6,6 +6,7 @@ package duplicacy
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -129,7 +130,7 @@ func (storage *GCSStorage) shouldRetry(backoff *int, err error) (bool, error) {
 	} else if e, ok := err.(*url.Error); ok {
 		message = e.Error()
 		retry = true
-	} else if err == io.ErrUnexpectedEOF {
+	} else if errors.Is(err, io.ErrUnexpectedEOF) {
 		// Retry on unexpected EOFs and temporary network errors.
 		message = "Unexpected EOF"
 		retry = true
@@ -171,7 +172,7 @@ func (storage *GCSStorage) ListFiles(threadIndex int, dir string) ([]string, []i
 	iter := storage.bucket.Objects(context.Background(), &query)
 	for {
 		attributes, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
@@ -197,7 +198,7 @@ func (storage *GCSStorage) ListFiles(threadIndex int, dir string) ([]string, []i
 // DeleteFile deletes the file or directory at 'filePath'.
 func (storage *GCSStorage) DeleteFile(threadIndex int, filePath string) (err error) {
 	err = storage.bucket.Object(storage.storageDir + filePath).Delete(context.Background())
-	if err == gcs.ErrObjectNotExist {
+	if errors.Is(err, gcs.ErrObjectNotExist) {
 		return nil
 	}
 	return err
@@ -229,7 +230,7 @@ func (storage *GCSStorage) GetFileInfo(threadIndex int, filePath string) (exist 
 	attributes, err := object.Attrs(context.Background())
 
 	if err != nil {
-		if err == gcs.ErrObjectNotExist {
+		if errors.Is(err, gcs.ErrObjectNotExist) {
 			return false, false, 0, nil
 		} else {
 			return false, false, 0, err

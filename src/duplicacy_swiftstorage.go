@@ -6,6 +6,7 @@ package duplicacy
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +25,7 @@ type SwiftStorage struct {
 }
 
 // CreateSwiftStorage creates an OpenStack Swift storage object.  storageURL is in the form of
-// `user@authURL/container/path?arg1=value1&arg2=value2``
+// `user@authURL/container/path?arg1=value1&arg2=value2“
 func CreateSwiftStorage(storageURL string, key string, threads int) (storage *SwiftStorage, err error) {
 
 	// This is the map to store all arguments
@@ -42,7 +43,7 @@ func CreateSwiftStorage(storageURL string, key string, threads int) (storage *Sw
 		}
 	}
 
-	// Take out the user name if there is one
+	// Take out the username if there is one
 	if strings.Contains(storageURL, "@") {
 		userAndURL := strings.Split(storageURL, "@")
 		arguments["user"] = userAndURL[0]
@@ -127,7 +128,7 @@ func CreateSwiftStorage(storageURL string, key string, threads int) (storage *Sw
 		Internal:       false,
 		Tenant:         arguments["tenant"],
 		TenantId:       arguments["tenant_id"],
-		EndpointType:   swift.EndpointType(arguments["endpiont_type"]),
+		EndpointType:   swift.EndpointType(arguments["endpoint_type"]),
 		TenantDomain:   arguments["tenant_domain"],
 		TenantDomainId: arguments["tenant_domain_id"],
 		TrustId:        arguments["trust_id"],
@@ -215,7 +216,7 @@ func (storage *SwiftStorage) GetFileInfo(threadIndex int, filePath string) (exis
 	object, _, err := storage.connection.Object(storage.ctx, storage.container, storage.storageDir+filePath)
 
 	if err != nil {
-		if err == swift.ObjectNotFound {
+		if errors.Is(err, swift.ObjectNotFound) {
 			return false, false, 0, nil
 		} else {
 			return false, false, 0, err

@@ -17,10 +17,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"text/tabwriter"
-	"time"
 	"sync"
 	"sync/atomic"
+	"text/tabwriter"
+	"time"
 
 	"github.com/aryann/difflib"
 )
@@ -64,8 +64,8 @@ func CreateFossilCollection(allSnapshots map[string][]*Snapshot) *FossilCollecti
 }
 
 // IsDeletable determines if the previously collected fossils are safe to be permanently removed.  If so, it will
-// also returns a number of snapshots that were created during or after these fossils were being collected.
-// Therefore, some fossils may be referenced by these new snapshots and they must be resurrected.
+// also return the number of snapshots that were created during or after these fossils were being collected.
+// Therefore, some fossils may be referenced by these new snapshots, and they must be resurrected.
 func (collection *FossilCollection) IsDeletable(isStrongConsistent bool, ignoredIDs []string,
 	allSnapshots map[string][]*Snapshot) (isDeletable bool, newSnapshots []*Snapshot) {
 
@@ -145,7 +145,7 @@ func (collection *FossilCollection) IsDeletable(isStrongConsistent bool, ignored
 		if value == false {
 			// In case of a dormant repository, a fossil collection is safe if no new snapshot has been seen for a
 			// snapshot id during the last 7 days.  A snapshot created at the roughly same time as this fossil
-			// collection would have finsihed already, while a snapshot currently being created does not affect
+			// collection would have finished already, while a snapshot currently being created does not affect
 			// this fossil collection.
 			if lastSnapshotTime[hostID] > 0 && lastSnapshotTime[hostID] < time.Now().Unix()-maxSnapshotRunningTime*secondsInDay {
 				LOG_INFO("SNAPSHOT_INACTIVE", "Ignore snapshot %s whose last revision was created more than %d days ago",
@@ -244,7 +244,7 @@ func (manager *SnapshotManager) DownloadSnapshot(snapshotID string, revision int
 	return snapshot
 }
 
-// sequenceReader loads the chunks pointed to by 'sequence' one by one as needed.  This avoid loading all chunks into
+// sequenceReader loads the chunks pointed to by 'sequence' one by one as needed. This avoids loading all chunks into
 // the memory before passing them to the json unmarshaller.
 type sequenceReader struct {
 	sequence   []string
@@ -360,7 +360,7 @@ func (manager *SnapshotManager) CleanSnapshotCache(latestSnapshot *Snapshot, all
 		// If the 'fossils' directory exists then don't clean the cache as all snapshots will be needed later
 		// during the fossil collection phase.  The deletion procedure creates this directory.
 		// We only check this condition when allSnapshots is nil because
-		// in thise case it is the deletion procedure that is trying to clean the snapshot cache.
+		// in this case it is the deletion procedure that is trying to clean the snapshot cache.
 		exist, _, _, err := manager.snapshotCache.GetFileInfo(0, "fossils")
 
 		if err != nil {
@@ -796,7 +796,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 	// Stores the chunk file size for each chunk
 	chunkSizeMap := make(map[string]int64)
 
-	// Indicate whether or not a chunk is shared by multiple snapshots
+	// Indicate whether a chunk is shared by multiple snapshots or not
 	chunkUniqueMap := make(map[string]bool)
 
 	// Store the index of the snapshot that references each chunk; if the chunk is shared by multiple chunks, the index is -1
@@ -907,7 +907,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 						_, exist, _, err := manager.storage.FindChunk(0, chunkID, false)
 						if err != nil {
 							LOG_WARN("SNAPSHOT_VALIDATE", "Failed to check the existence of chunk %s: %v",
-							         chunkID, err)
+								chunkID, err)
 						} else if exist {
 							LOG_INFO("SNAPSHOT_VALIDATE", "Chunk %s is confirmed to exist", chunkID)
 							continue
@@ -996,7 +996,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 		return true
 	}
 
-	// This contains chunks that have been verifed in previous checks and is loaded from
+	// This contains chunks that have been verified in previous checks and is loaded from
 	// .duplicacy/cache/storage/verified_chunks.  Note that it contains the chunk ids not chunk
 	// hashes.
 	verifiedChunks := make(map[string]int64)
@@ -1030,7 +1030,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 				if err != nil {
 					LOG_WARN("SNAPSHOT_VERIFY", "Failed to save the verified chunks file: %v", err)
 				} else {
-					LOG_INFO("SNAPSHOT_VERIFY", "Added %d chunks to the list of verified chunks", len(verifiedChunks) - numberOfVerifiedChunks)
+					LOG_INFO("SNAPSHOT_VERIFY", "Added %d chunks to the list of verified chunks", len(verifiedChunks)-numberOfVerifiedChunks)
 					numberOfVerifiedChunks = len(verifiedChunks)
 				}
 			}
@@ -1074,7 +1074,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 			defer CatchLogException()
 
 			for {
-				chunkIndex, ok := <- chunkChannel
+				chunkIndex, ok := <-chunkChannel
 				if !ok {
 					wg.Done()
 					return
@@ -1090,7 +1090,7 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 					verifiedChunksLock.Lock()
 					now := time.Now().Unix()
 					verifiedChunks[chunkID] = now
-					if now > lastSaveTime + 5 * 60 {
+					if now > lastSaveTime+5*60 {
 						lastSaveTime = now
 						verifiedChunksLock.Unlock()
 						saveVerifiedChunks()
@@ -1103,10 +1103,10 @@ func (manager *SnapshotManager) CheckSnapshots(snapshotID string, revisionsToChe
 
 					elapsedTime := time.Now().Sub(startTime).Seconds()
 					speed := int64(float64(downloadedChunkSize) / elapsedTime)
-					remainingTime := int64(float64(totalChunks - downloadedChunks) / float64(downloadedChunks) * elapsedTime)
+					remainingTime := int64(float64(totalChunks-downloadedChunks) / float64(downloadedChunks) * elapsedTime)
 					percentage := float64(downloadedChunks) / float64(totalChunks) * 100.0
 					LOG_INFO("VERIFY_PROGRESS", "Verified chunk %s (%d/%d), %sB/s %s %.1f%%",
-							chunkID, downloadedChunks, totalChunks, PrettySize(speed), PrettyTime(remainingTime), percentage)
+						chunkID, downloadedChunks, totalChunks, PrettySize(speed), PrettyTime(remainingTime), percentage)
 				}
 
 				manager.config.PutChunk(chunk)
@@ -1300,7 +1300,7 @@ func (manager *SnapshotManager) PrintSnapshot(snapshot *Snapshot) bool {
 	}
 
 	// Don't print the ending bracket
-	fmt.Printf("%s", string(description[:len(description) - 2]))
+	fmt.Printf("%s", string(description[:len(description)-2]))
 	fmt.Printf(",\n  \"files\": [\n")
 	isFirstFile := true
 	snapshot.ListRemoteFiles(manager.config, manager.chunkOperator, func(file *Entry) bool {
@@ -1531,7 +1531,7 @@ func (manager *SnapshotManager) Diff(top string, snapshotID string, revisions []
 			}()
 
 			for entry := range localListingChannel {
-				entry.Attributes = nil  // attributes are not compared
+				entry.Attributes = nil // attributes are not compared
 				rightSnapshotFiles = append(rightSnapshotFiles, entry)
 			}
 
@@ -1832,15 +1832,16 @@ func (manager *SnapshotManager) resurrectChunk(fossilPath string, chunkID string
 
 // PruneSnapshots deletes snapshots by revisions, tags, or a retention policy.  The main idea is two-step
 // fossil collection.
-// 1. Delete snapshots specified by revision, retention policy, with a tag.  Find any resulting unreferenced
-//    chunks, and mark them as fossils (by renaming).  After that, create a fossil collection file containing
-//    fossils collected during current run, and temporary files encountered.  Also in the file is the latest
-//    revision for each snapshot id.  Save this file to a local directory.
 //
-// 2. On next run, check if there is any new revision for each snapshot.  Or if the lastest revision is too
-//    old, for instance, more than 7 days.  This step is to identify snapshots that were being created while
-//    step 1 is in progress.  For each fossil reference by any of these snapshots, move them back to the
-//    normal chunk directory.
+//  1. Delete snapshots specified by revision, retention policy, with a tag.  Find any resulting unreferenced
+//     chunks, and mark them as fossils (by renaming).  After that, create a fossil collection file containing
+//     fossils collected during current run, and temporary files encountered.  Also in the file is the latest
+//     revision for each snapshot id.  Save this file to a local directory.
+//
+//  2. On next run, check if there is any new revision for each snapshot.  Or if the lastest revision is too
+//     old, for instance, more than 7 days.  This step is to identify snapshots that were being created while
+//     step 1 is in progress.  For each fossil reference by any of these snapshots, move them back to the
+//     normal chunk directory.
 //
 // Note that a snapshot being created when step 2 is in progress may reference a fossil.  To avoid this
 // problem, never remove the lastest revision (unless exclusive is true), and only cache chunks referenced
@@ -2188,7 +2189,7 @@ func (manager *SnapshotManager) PruneSnapshots(selfID string, snapshotID string,
 					}
 				}
 
-				// Find out which retent policy applies based on the age.
+				// Find out which retention policy applies based on the age.
 				for i < len(retentionPolicies) &&
 					getDaysBetween(snapshot.StartTime, now) < retentionPolicies[i].Age {
 					i++
@@ -2337,7 +2338,7 @@ func (manager *SnapshotManager) PruneSnapshots(selfID string, snapshotID string,
 func (manager *SnapshotManager) pruneSnapshotsNonExhaustive(allSnapshots map[string][]*Snapshot, collection *FossilCollection, logFile io.Writer, dryRun, exclusive bool) bool {
 	targetChunks := make(map[string]bool)
 
-	// Now build all chunks referened by snapshot not deleted
+	// Now build all chunks referenced by snapshot not deleted
 	for _, snapshots := range allSnapshots {
 
 		if len(snapshots) > 0 {
@@ -2410,7 +2411,7 @@ func (manager *SnapshotManager) pruneSnapshotsExhaustive(referencedFossils map[s
 	chunkRegex := regexp.MustCompile(`^[0-9a-f]+$`)
 	referencedChunks := make(map[string]bool)
 
-	// Now build all chunks referened by snapshot not deleted
+	// Now build all chunks referenced by snapshot not deleted
 	for _, snapshots := range allSnapshots {
 		if len(snapshots) > 0 {
 			latest := snapshots[len(snapshots)-1]

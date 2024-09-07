@@ -588,7 +588,7 @@ func TestPruneMultipleThread(t *testing.T) {
 	checkTestSnapshots(snapshotManager, 1, 0)
 }
 
-// A snapshot not seen by a fossil collection should always be consider a new snapshot in the fossil deletion step
+// A snapshot not seen by a fossil collection should always be considered a new snapshot in the fossil deletion step
 func TestPruneNewSnapshots(t *testing.T) {
 	setTestingT(t)
 

@@ -420,37 +420,37 @@ func (entry *Entry) DecodeMsgpack(decoder *msgpack.Decoder) error {
 	if err != nil {
 		return err
 	}
-	entry.StartChunk = int(startChunk)
+	entry.StartChunk = startChunk
 
 	startOffset, err := decoder.DecodeInt()
 	if err != nil {
 		return err
 	}
-	entry.StartOffset = int(startOffset)
+	entry.StartOffset = startOffset
 
 	endChunk, err := decoder.DecodeInt()
 	if err != nil {
 		return err
 	}
-	entry.EndChunk = int(endChunk)
+	entry.EndChunk = endChunk
 
 	endOffset, err := decoder.DecodeInt()
 	if err != nil {
 		return err
 	}
-	entry.EndOffset = int(endOffset)
+	entry.EndOffset = endOffset
 
 	uid, err := decoder.DecodeInt()
 	if err != nil {
 		return err
 	}
-	entry.UID = int(uid)
+	entry.UID = uid
 
 	gid, err := decoder.DecodeInt()
 	if err != nil {
 		return err
 	}
-	entry.GID = int(gid)
+	entry.GID = gid
 
 	numberOfAttributes, err := decoder.DecodeInt()
 	if err != nil {
@@ -589,7 +589,7 @@ func ComparePaths(left string, right string) int {
 	// c3 == '/':  the current component is a directory; c3 != '/':  the current component is the last one
 	c3 := c1
 
-	// last1, last2 means if the current compoent is the last component
+	// last1, last2 means if the current component is the last component
 	last1 := true
 	for i := p; i < len(left); i++ {
 		c3 = left[i]
@@ -769,7 +769,7 @@ func ListEntries(top string, path string, patterns []string, nobackupFile string
 				newEntry := CreateEntryFromFileInfo(stat, "")
 				if runtime.GOOS == "windows" {
 					// On Windows, stat.Name() is the last component of the target, so we need to construct the correct
-					// path from f.Name(); note that a "/" is append assuming a symbolic link is always a directory
+					// path from f.Name(); note that a "/" is appended assuming a symbolic link is always a directory
 					newEntry.Path = filepath.Join(normalizedPath, f.Name()) + "/"
 				}
 				if len(patterns) > 0 && !MatchPath(newEntry.Path, patterns) {
@@ -815,7 +815,7 @@ func ListEntries(top string, path string, patterns []string, nobackupFile string
 	return directoryList, skippedFiles, nil
 }
 
-// Diff returns how many bytes remain unmodifiled between two files.
+// Diff returns how many bytes remain unmodified between two files.
 func (entry *Entry) Diff(chunkHashes []string, chunkLengths []int,
 	otherHashes []string, otherLengths []int) (modifiedLength int64) {
 

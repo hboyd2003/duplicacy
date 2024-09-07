@@ -6,6 +6,7 @@ package duplicacy
 
 import (
 	"encoding/json"
+	"os"
 	"syscall"
 	"unsafe"
 )
@@ -74,7 +75,7 @@ func keyringDecrypt(value []byte) ([]byte, error) {
 	decryptedData := make([]byte, dataOut.cbData)
 	for i := 0; i < len(decryptedData); i++ {
 		address := int(uintptr(unsafe.Pointer(dataOut.pbData)))
-		decryptedData[i] = *(*byte)(unsafe.Pointer(uintptr(int(address) + i)))
+		decryptedData[i] = *(*byte)(unsafe.Pointer(uintptr(address + i)))
 	}
 	return decryptedData, nil
 }
@@ -85,7 +86,7 @@ func keyringGet(key string) (value string) {
 		return ""
 	}
 
-	description, err := io.ReadFile(keyringFile)
+	description, err := os.ReadFile(keyringFile)
 	if err != nil {
 		LOG_DEBUG("KEYRING_READ", "Keyring file not read: %v", err)
 		return ""
@@ -124,7 +125,7 @@ func keyringSet(key string, value string) bool {
 
 	keyring := make(map[string][]byte)
 
-	description, err := io.ReadFile(keyringFile)
+	description, err := os.ReadFile(keyringFile)
 	if err == nil {
 		err = json.Unmarshal(description, &keyring)
 		if err != nil {
@@ -159,7 +160,7 @@ func keyringSet(key string, value string) bool {
 		return false
 	}
 
-	err = io.WriteFile(keyringFile, description, 0600)
+	err = os.WriteFile(keyringFile, description, 0600)
 	if err != nil {
 		LOG_DEBUG("KEYRING_WRITE", "Failed to save the keyring storage to file %s: %v", keyringFile, err)
 		return false

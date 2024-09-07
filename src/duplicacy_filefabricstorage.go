@@ -471,7 +471,7 @@ func (storage *FileFabricStorage) createParentDirectory(threadIndex int, dir str
 
 	parentID, err = storage.createDirectory(threadIndex, parent)
 	if err != nil {
-		if err == errFileFabricDirectoryExists {
+		if errors.Is(err, errFileFabricDirectoryExists) {
 			var isDir bool
 			parentID, isDir, _, err = storage.getFileInfo(threadIndex, parent)
 			if err != nil {
@@ -536,7 +536,7 @@ func (storage *FileFabricStorage) createDirectory(threadIndex int, dir string) (
 
 func (storage *FileFabricStorage) CreateDirectory(threadIndex int, dir string) (err error) {
 	_, err = storage.createDirectory(threadIndex, dir)
-	if err == errFileFabricDirectoryExists {
+	if errors.Is(err, errFileFabricDirectoryExists) {
 		return nil
 	}
 	return err

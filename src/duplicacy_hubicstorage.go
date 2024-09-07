@@ -17,7 +17,7 @@ type HubicStorage struct {
 	numberOfThreads int
 }
 
-// CreateHubicStorage creates an Hubic storage object.
+// CreateHubicStorage creates a Hubic storage object.
 func CreateHubicStorage(tokenFile string, storagePath string, threads int) (storage *HubicStorage, err error) {
 
 	for len(storagePath) > 0 && storagePath[len(storagePath)-1] == '/' {

@@ -5,6 +5,7 @@
 package duplicacy
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -196,7 +197,7 @@ func (storage *FileStorage) UploadFile(threadIndex int, filePath string, content
 
 	if err = file.Sync(); err != nil {
 		pathErr, ok := err.(*os.PathError)
-		isNotSupported := ok && pathErr.Op == "sync" && pathErr.Err == syscall.ENOTSUP
+		isNotSupported := ok && pathErr.Op == "sync" && errors.Is(pathErr.Err, syscall.ENOTSUP)
 		if !isNotSupported {
 			_ = file.Close()
 			return err

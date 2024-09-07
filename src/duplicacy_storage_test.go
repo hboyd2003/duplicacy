@@ -22,7 +22,7 @@ import (
 )
 
 var testStorageName = flag.String("storage", "", "the test storage to use")
-var testRateLimit = flag.Int("limit-rate", 0, "maximum transfer speed in kbytes/sec")
+var testRateLimit = flag.Int("limit-rate", 0, "maximum transfer speed in kilobytes/sec")
 var testQuickMode = flag.Bool("quick", false, "quick test")
 var testThreads = flag.Int("threads", 1, "number of downloading/uploading threads")
 var testFixedChunkSize = flag.Bool("fixed-chunk-size", false, "fixed chunk size")

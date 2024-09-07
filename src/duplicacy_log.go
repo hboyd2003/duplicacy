@@ -6,13 +6,13 @@ package duplicacy
 
 import (
 	"fmt"
-	"os"
 	"log"
+	"os"
+	"regexp"
 	"runtime/debug"
 	"sync"
 	"testing"
 	"time"
-	"regexp"
 )
 
 const (
@@ -46,7 +46,7 @@ func setTestingT(t *testing.T) {
 }
 
 // Contains the ids of logs that won't be displayed
-var suppressedLogs map[string]bool = map[string]bool{}
+var suppressedLogs = map[string]bool{}
 
 func SuppressLog(id string) {
 	suppressedLogs[id] = true
@@ -115,7 +115,6 @@ func LOG_WERROR(isWarning bool, logID string, format string, v ...interface{}) {
 	}
 }
 
-
 func LOG_FATAL(logID string, format string, v ...interface{}) {
 	logf(FATAL, logID, format, v...)
 }
@@ -143,7 +142,7 @@ func logf(level int, logID string, format string, v ...interface{}) {
 
 	now := time.Now()
 
-	// Uncomment this line to enable unbufferred logging for tests
+	// Uncomment this line to enable unbuffered logging for tests
 	// fmt.Printf("%s %s %s %s\n", now.Format("2006-01-02 15:04:05.000"), getLevelName(level), logID, message)
 
 	if testingT != nil {
@@ -193,8 +192,8 @@ type Logger struct {
 
 func (logger *Logger) Write(line []byte) (n int, err error) {
 	n = len(line)
-	for len(line) > 0 && line[len(line) - 1] == '\n' {
-		line = line[:len(line) - 1]
+	for len(line) > 0 && line[len(line)-1] == '\n' {
+		line = line[:len(line)-1]
 	}
 	matched := logger.formatRegex.FindStringSubmatch(string(line))
 	if matched != nil {
@@ -203,12 +202,12 @@ func (logger *Logger) Write(line []byte) (n int, err error) {
 		LOG_INFO("LOG_DEFAULT", "%s", line)
 	}
 
-    return
+	return
 }
 
 func init() {
 	log.SetFlags(0)
-	log.SetOutput(&Logger{ formatRegex: regexp.MustCompile(`^\[(.+)\]\s*(.+)`) })
+	log.SetOutput(&Logger{formatRegex: regexp.MustCompile(`^\[(.+)\]\s*(.+)`)})
 }
 
 const (
@@ -217,7 +216,7 @@ const (
 )
 
 // This is the function to be called before exiting when an error occurs.
-var RunAtError func() = func() {}
+var RunAtError = func() {}
 
 func CatchLogException() {
 	if r := recover(); r != nil {

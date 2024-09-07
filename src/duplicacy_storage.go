@@ -23,7 +23,7 @@ import (
 type Storage interface {
 	// ListFiles return the list of files and subdirectories under 'dir'.  A subdirectories returned must have a trailing '/', with
 	// a size of 0.  If 'dir' is 'snapshots', only subdirectories will be returned.  If 'dir' is 'snapshots/repository_id', then only
-	// files will be returned.  If 'dir' is 'chunks', the implementation can return the list either recusively or non-recusively.
+	// files will be returned.  If 'dir' is 'chunks', the implementation can return the list either recursively or non-recursively.
 	ListFiles(threadIndex int, dir string) (files []string, sizes []int64, err error)
 
 	// DeleteFile deletes the file or directory at 'filePath'.
@@ -74,7 +74,7 @@ type Storage interface {
 // StorageBase is the base struct from which all storages are derived from
 type StorageBase struct {
 	DownloadRateLimit int // Maximum download rate (bytes/seconds)
-	UploadRateLimit   int // Maximum upload reate (bytes/seconds)
+	UploadRateLimit   int // Maximum upload rate (bytes/seconds)
 
 	DerivedStorage Storage // Used as the pointer to the derived storage class
 
@@ -354,7 +354,7 @@ func CreateStorage(preference Preference, resetPassword bool, threads int) (stor
 							LOG_TRACE("SSH_PUBLICKEY", "The private key file is encrypted")
 							passphrase = GetPassword(preference, "ssh_passphrase", "Enter the passphrase to decrypt the private key file:", false, resetPassword)
 							if len(passphrase) == 0 {
-								LOG_INFO("SSH_PUBLICKEY", "No passphrase to descrypt the private key file %s", keyFile)
+								LOG_INFO("SSH_PUBLICKEY", "No passphrase to decrypt the private key file %s", keyFile)
 							} else {
 								keySigner, err = ssh.ParsePrivateKeyWithPassphrase(content, []byte(passphrase))
 								if err != nil {
@@ -491,8 +491,8 @@ func CreateStorage(preference Preference, resetPassword bool, threads int) (stor
 				return nil
 			}
 		} else {
-			isMinioCompatible := (matched[1] == "minio" || matched[1] == "minios")
-			isSSLSupported := (matched[1] == "s3" || matched[1] == "minios")
+			isMinioCompatible := matched[1] == "minio" || matched[1] == "minios"
+			isSSLSupported := matched[1] == "s3" || matched[1] == "minios"
 			storage, err = CreateS3Storage(region, endpoint, bucket, storageDir, accessKey, secretKey, threads, isSSLSupported, isMinioCompatible)
 			if err != nil {
 				LOG_ERROR("STORAGE_CREATE", "Failed to load the S3 storage at %s: %v", storageURL, err)

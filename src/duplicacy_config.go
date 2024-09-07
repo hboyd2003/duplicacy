@@ -444,7 +444,7 @@ func DownloadConfig(storage Storage, password string) (config *Config, isEncrypt
 			LOG_TRACE("CONFIG_ITERATIONS", "Using %d iterations for key derivation", iterations)
 			masterKey = GenerateKeyFromPassword(password, saltStart[:CONFIG_SALT_LENGTH], int(iterations))
 
-			// Copy to a temporary buffer to replace the banner and remove the salt and the number of riterations
+			// Copy to a temporary buffer to replace the banner and remove the salt and the number of reiterations
 			var encrypted bytes.Buffer
 			encrypted.Write([]byte(ENCRYPTION_BANNER))
 			encrypted.Write(saltStart[CONFIG_SALT_LENGTH+4:])
@@ -627,7 +627,7 @@ func (config *Config) loadRSAPublicKey(keyFile string) {
 	config.rsaPublicKey = key
 }
 
-// loadRSAPrivateKey loads the specifed private key file for decrypting file chunks
+// loadRSAPrivateKey loads the specified private key file for decrypting file chunks
 func (config *Config) loadRSAPrivateKey(keyFile string, passphrase string) {
 
 	if config.rsaPublicKey == nil {

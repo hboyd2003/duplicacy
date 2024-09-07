@@ -51,7 +51,7 @@ const (
 )
 
 // We copied golang source code for Readlink but made a simple modification here:  use FILE_READ_ATTRIBUTES instead of
-// GENERIC_READ to read the symlink, because the latter would cause a Access Denied error on links such as
+// GENERIC_READ to read the symlink, because the latter would cause an Access Denied error on links such as
 // C:\Documents and Settings
 
 // Readlink returns the destination of the named symbolic link.

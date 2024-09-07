@@ -91,7 +91,7 @@ func (storage *WasabiStorage) DeleteFile(
 
 // This is a lightweight implementation of a call to Wasabi for a
 // rename.  It's designed to get the job done with as few dependencies
-// on other packages as possible rather than being somethng
+// on other packages as possible rather than being something
 // general-purpose and reusable.
 func (storage *WasabiStorage) MoveFile(threadIndex int, from string, to string) (err error) {
 

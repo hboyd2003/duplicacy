@@ -68,28 +68,28 @@ to find the differences from previous backups and only then uploading the differ
 
 [Duplicati](https://duplicati.com) is one of the first backup tools that adopt the chunk-based approach to split files into chunks which are then uploaded to the storage.  The chunk-based approach got the incremental backup model right in the sense that every incremental backup is actually a full snapshot.  As Duplicati splits files into fixed-size chunks,  deletions or insertions of a few bytes will foil the deduplication.  Cloud support is extensive, but multiple clients can't back up to the same storage location.
 
-[Attic](https://attic-backup.org) has been acclaimed by some as the [Holy Grail of backups](https://www.stavros.io/posts/holy-grail-backups).  It follows the same incremental backup model like Duplicati but embraces the variable-size chunk algorithm for better performance and higher deduplication efficiency (not susceptible to byte insertion and deletion any more).  Deletions of old backup are also supported.  However, no cloud backends are implemented.  Although concurrent backups from multiple clients to the same storage is in theory possible by the use of locking, it is
+[Attic](https://attic-backup.org) has been acclaimed by some as the [Holy Grail of backups](https://www.stavros.io/posts/holy-grail-backups).  It follows the same incremental backup model like Duplicati but embraces the variable-size chunk algorithm for better performance and higher deduplication efficiency (not susceptible to byte insertion and deletion anymore).  Deletions of old backup are also supported.  However, no cloud backends are implemented.  Although concurrent backups from multiple clients to the same storage is in theory possible by the use of locking, it is
 [not recommended](http://librelist.com/browser//attic/2014/11/11/backing-up-multiple-servers-into-a-single-repository/#e96345aa5a3469a87786675d65da492b) by the developer due to chunk indices being kept in a local cache.
 Concurrent access is not only a convenience; it is a necessity for better deduplication.  For instance, if multiple machines with the same OS installed can back up their entire drives to the same storage, only one copy of the system files needs to be stored, greatly reducing the storage space regardless of the number of machines.  Attic still adopts the traditional approach of using a centralized indexing database to manage chunks and relies heavily on caching to improve performance.  The presence of exclusive locking makes it hard to be extended to cloud storages.
 
 [restic](https://restic.github.io) is a more recent addition. It uses a format similar to the git packfile format.  Multiple clients backing up to the same storage are still guarded by
-[locks](https://github.com/restic/restic/blob/master/doc/Design.md#locks), and because a chunk database is used, deduplication isn't real-time (different clients sharing the same files will upload different copies of the same chunks).  A prune operation will completely block all other clients connected to the storage from doing their regular backups.  Moreover, since most cloud storage services do not provide a locking service, the best effort is to use some basic file operations to simulate a lock, but distributed locking is known to be a hard problem and it is unclear how reliable restic's lock implementation is.  A faulty implementation may cause a prune operation to accidentally delete data still in use, resulting in unrecoverable data loss.  This is the exact problem that we avoided by taking the lock-free approach.
+[locks](https://github.com/restic/restic/blob/master/doc/Design.md#locks), and because a chunk database is used, deduplication isn't real-time (different clients sharing the same files will upload different copies of the same chunks).  A prune operation will completely block all other clients connected to the storage from doing their regular backups.  Moreover, since most cloud storage services do not provide a locking service, the best effort is to use some basic file operations to simulate a lock, but distributed locking is known to be a hard problem, and it is unclear how reliable restic's lock implementation is.  A faulty implementation may cause a prune operation to accidentally delete data still in use, resulting in unrecoverable data loss.  This is the exact problem that we avoided by taking the lock-free approach.
 
 
 The following table compares the feature lists of all these backup tools:
 
 
-| Feature/Tool       | duplicity | bup | Duplicati         | Attic           | restic            | **Duplicacy** |
+|    Feature/Tool    | duplicity | bup |     Duplicati     |      Attic      |      restic       | **Duplicacy** |
 |:------------------:|:---------:|:---:|:-----------------:|:---------------:|:-----------------:|:-------------:|
-| Incremental Backup | Yes       | Yes | Yes               | Yes             | Yes               | **Yes**       |
-| Full Snapshot      | No        | Yes | Yes               | Yes             | Yes               | **Yes**       |
-| Compression        | Yes       | Yes | Yes               | Yes             | Yes               | **Yes**       |
-| Deduplication      | Weak      | Yes | Weak              | Yes             | Yes               | **Yes**       |
-| Encryption         | Yes       | Yes | Yes               | Yes             | Yes               | **Yes**       |
-| Deletion           | No        | No  | Yes               | Yes             | Yes               | **Yes**       |
-| Concurrent Access  | No        | No  | No                | Not recommended | Exclusive locking | **Lock-free** |
-| Cloud Support      | Extensive | No  | Extensive         | No              | Limited           | **Extensive** |
-| Snapshot Migration | No        | No  | No                | No              | Yes               | **Yes**       |
+| Incremental Backup |    Yes    | Yes |        Yes        |       Yes       |        Yes        |    **Yes**    |
+|   Full Snapshot    |    No     | Yes |        Yes        |       Yes       |        Yes        |    **Yes**    |
+|    Compression     |    Yes    | Yes |        Yes        |       Yes       |        Yes        |    **Yes**    |
+|   Deduplication    |   Weak    | Yes |       Weak        |       Yes       |        Yes        |    **Yes**    |
+|     Encryption     |    Yes    | Yes |        Yes        |       Yes       |        Yes        |    **Yes**    |
+|      Deletion      |    No     | No  |        Yes        |       Yes       |        Yes        |    **Yes**    |
+| Concurrent Access  |    No     | No  |        No         | Not recommended | Exclusive locking | **Lock-free** |
+|   Cloud Support    | Extensive | No  |     Extensive     |       No        |      Limited      | **Extensive** |
+| Snapshot Migration |    No     | No  |        No         |       No        |        Yes        |    **Yes**    |
 
 ## License
 

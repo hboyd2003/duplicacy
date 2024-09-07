@@ -47,7 +47,7 @@ type Snapshot struct {
 }
 
 // CreateEmptySnapshot creates an empty snapshot.
-func CreateEmptySnapshot(id string) (snapshto *Snapshot) {
+func CreateEmptySnapshot(id string) (snapshot *Snapshot) {
 	return &Snapshot{
 		Version:   1,
 		ID:        id,
@@ -301,7 +301,7 @@ func ProcessFilterLines(patternFileLines []string, includedFiles []string) (patt
 	return patterns
 }
 
-// CreateSnapshotFromDescription creates a snapshot from json decription.
+// CreateSnapshotFromDescription creates a snapshot from json description.
 func CreateSnapshotFromDescription(description []byte) (snapshot *Snapshot, err error) {
 
 	var root map[string]interface{}
@@ -456,7 +456,7 @@ func (snapshot *Snapshot) MarshalJSON() ([]byte, error) {
 	return json.Marshal(object)
 }
 
-// MarshalSequence creates a json represetion for the specified chunk sequence.
+// MarshalSequence creates a json representation for the specified chunk sequence.
 func (snapshot *Snapshot) MarshalSequence(sequenceType string) ([]byte, error) {
 
 	if sequenceType == "chunks" {

@@ -228,7 +228,7 @@ func (client *B2Client) call(threadIndex int, requestURL string, method string, 
 				return nil, nil, 0, err
 			}
 
-			// Clear the upload url to requrest a new one on retry
+			// Clear the upload url to request a new one on retry
 			if isUpload {
 				client.UploadURLs[threadIndex] = ""
 				client.UploadTokens[threadIndex] = ""
@@ -357,7 +357,7 @@ func (client *B2Client) FindBucket(bucketName string) (err error) {
 
 	defer readCloser.Close()
 
-	output := make(map[string][]ListBucketOutput, 0)
+	output := make(map[string][]ListBucketOutput)
 
 	if err = json.NewDecoder(readCloser).Decode(&output); err != nil {
 		return err
